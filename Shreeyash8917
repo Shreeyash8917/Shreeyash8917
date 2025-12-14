@@ -1,10 +1,481 @@
-- 👋 Hi, I’m @Shreeyash8917
-- 👀 I’m interested in ...
-- 🌱 I’m currently learning ...
-- 💞️ I’m looking to collaborate on ...
-- 📫 How to reach me ...
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X&O Game (Tic-Tac-Toe)</title>
+    <style>
+        /* CSS Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #34495e; 
+            color: white;
+        }
 
-<!---
-Shreeyash8917/Shreeyash8917 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-You can click the Preview link to take a look at your changes.
---->
+        .container {
+            background-color: #2c3e50; 
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            color: #ecf0f1;
+            margin-bottom: 30px;
+            font-size: 2.8em; 
+            text-transform: uppercase;
+        }
+
+        /* --- Menu Screen Styling (Enhanced) --- */
+        #menu-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 20px; 
+        }
+        
+        .menu-group {
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #3c526d; 
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .menu-group-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #ecf0f1;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #5a789a;
+            padding-bottom: 5px;
+        }
+
+        /* Input field styling */
+        #room-id-input {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-size: 1em;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #f4f6f7;
+            color: #333;
+            border: none;
+        }
+
+        #ai-level-select {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-size: 1em;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #f4f6f7;
+            color: #333;
+            border: none;
+        }
+
+        #menu-screen label {
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 5px;
+            text-align: left;
+        }
+
+        #menu-screen button {
+            padding: 15px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.1s;
+            width: 100%; 
+        }
+
+        #play-1v1-btn {
+            background-color: #e67e22; /* Orange */
+            color: white;
+        }
+
+        #play-1vai-btn {
+            background-color: #1abc9c; /* Green/Teal */
+            color: white;
+        }
+
+        #join-room-btn {
+             background-color: #9b59b6; /* Purple */
+             color: white;
+        }
+
+        #menu-screen button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        /* --- Game Screen Styling --- (Remains the same) */
+        #game-screen { display: none; }
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); 
+            grid-template-rows: repeat(3, 1fr);
+            gap: 8px;
+            margin: 20px auto;
+            border: 5px solid #3498db;
+            border-radius: 5px;
+            max-width: 320px; 
+            width: 100%;
+            aspect-ratio: 1 / 1; 
+        }
+
+        .cell {
+            background-color: #34495e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5em; 
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.15s, transform 0.1s;
+            user-select: none;
+        }
+
+        .cell:hover:empty { background-color: #4a637d; transform: scale(1.03); }
+        .cell.X { color: #e74c3c; } 
+        .cell.O { color: #f1c40f; } 
+        #status-message { font-size: 1.3em; margin-bottom: 15px; font-weight: 600; min-height: 2em; } 
+        .game-controls button { padding: 10px 20px; font-size: 1em; cursor: pointer; background-color: #3498db; color: white; border: none; border-radius: 5px; margin: 5px; transition: background-color 0.2s; }
+        .game-controls button:hover { background-color: #2980b9; }
+
+        /* --- ANIMATION CODE --- */
+        @keyframes flash-win { 0%, 100% { background-color: #2c3e50; } 50% { background-color: #2ecc71; } }
+        @keyframes shake-draw { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+        .win-flash { animation: flash-win 0.5s ease-out; }
+        .draw-shake { animation: shake-draw 0.3s ease-in-out; }
+        .winning-cell { background-color: #2ecc71 !important; color: white !important; transition: background-color 0.5s; transform: scale(1.05); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tic-Tac-Toe</h1>
+        
+        <div id="menu-screen">
+            
+            <div class="menu-group">
+                <div class="menu-group-title">👥 Local Multiplayer</div>
+                <button id="play-1v1-btn">🧑 Player vs Player (1v1)</button>
+            </div>
+            
+            <div class="menu-group">
+                <div class="menu-group-title">🤖 Single Player vs AI</div>
+                <label for="ai-level-select">Select AI Difficulty:</label>
+                <select id="ai-level-select">
+                    <option value="easy">Easy (Random)</option>
+                    <option value="medium">Medium (Defensive)</option>
+                    <option value="hard">Hard (Unbeatable)</option>
+                </select>
+                <button id="play-1vai-btn">🤖 Start AI Game</button>
+            </div>
+
+            <div class="menu-group">
+                <div class="menu-group-title">🌐 Online Multiplayer (Concept)</div>
+                <label for="room-id-input">Enter Room ID or leave blank to create:</label>
+                <input type="text" id="room-id-input" placeholder="e.g., GAME123">
+                <button id="join-room-btn">🔗 Connect to Game</button>
+            </div>
+            </div>
+
+        <div id="game-screen">
+            <div id="status-message"></div>
+            <div id="game-board">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+            </div>
+            <div class="game-controls">
+                <button id="reset-button">Restart Game</button>
+                <button id="menu-button">Back to Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Game Variables and Constants ---
+        const menuScreen = document.getElementById('menu-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const play1v1Btn = document.getElementById('play-1v1-btn');
+        const play1vAIBtn = document.getElementById('play-1vai-btn');
+        const joinRoomBtn = document.getElementById('join-room-btn');
+        const roomIdInput = document.getElementById('room-id-input');
+        const aiLevelSelect = document.getElementById('ai-level-select');
+        const cells = document.querySelectorAll('.cell');
+        const statusMessage = document.getElementById('status-message');
+        const resetButton = document.getElementById('reset-button');
+        const menuButton = document.getElementById('menu-button');
+        const gameBoard = document.getElementById('game-board');
+
+        let board = ["", "", "", "", "", "", "", "", ""];
+        let currentPlayer = "X";
+        let isGameActive = true;
+        let isPlayerVsAI = false;
+        let isOnlineMode = false; // New state variable
+        let aiDifficulty = 'easy'; 
+        let localPlayerRole = null; // 'X' or 'O' in online mode
+
+        const PLAYER_X = "X";
+        const PLAYER_O = "O"; 
+        
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], 
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], 
+            [0, 4, 8], [2, 4, 6]            
+        ];
+
+        // --- Core Game Functions ---
+
+        function handleCellPlayed(clickedCell, clickedCellIndex) {
+            board[clickedCellIndex] = currentPlayer;
+            clickedCell.innerHTML = currentPlayer;
+            clickedCell.classList.add(currentPlayer);
+        }
+
+        function handlePlayerChange() {
+            currentPlayer = currentPlayer === PLAYER_X ? PLAYER_O : PLAYER_X;
+            statusMessage.innerHTML = isOnlineMode 
+                ? `Waiting for Player ${currentPlayer} (Your turn is ${localPlayerRole})`
+                : `Player ${currentPlayer}'s turn!`;
+
+            if (isOnlineMode) {
+                // If this were a real game, this is where you'd send the move to the server
+                // and disable local input if it's not your turn.
+                if (currentPlayer !== localPlayerRole) {
+                    cells.forEach(cell => cell.style.pointerEvents = 'none');
+                } else {
+                    cells.forEach(cell => cell.style.pointerEvents = 'auto');
+                }
+            }
+        }
+        
+        function handleResultValidation() {
+            let winningLine = null;
+            
+            for (const condition of winningConditions) {
+                const [a, b, c] = condition;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    winningLine = condition;
+                    break;
+                }
+            }
+
+            if (winningLine) {
+                const winner = isOnlineMode ? (currentPlayer === localPlayerRole ? "You" : "Opponent") : 
+                               (currentPlayer === PLAYER_O && isPlayerVsAI ? "The AI" : `Player ${currentPlayer}`);
+                               
+                statusMessage.innerHTML = `🎉 ${winner} has won! 🎉`;
+                isGameActive = false;
+                
+                gameBoard.classList.add('win-flash');
+                winningLine.forEach(index => {
+                    cells[index].classList.add('winning-cell');
+                });
+                return true;
+            }
+
+            let roundDraw = !board.includes("");
+            if (roundDraw) {
+                statusMessage.innerHTML = `It's a Draw! 🤝`;
+                isGameActive = false;
+                gameBoard.classList.add('draw-shake');
+                return true;
+            }
+            
+            return false;
+        }
+
+        // --- AI Logic (Unchanged) ---
+        function getAvailableMoves(currentBoard) {
+            return currentBoard.map((val, index) => val === "" ? index : null).filter(index => index !== null);
+        }
+        function findWinningMove(testBoard, player) {
+            for (const condition of winningConditions) {
+                const [a, b, c] = condition;
+                if (testBoard[a] === player && testBoard[b] === player && testBoard[c] === "") return c;
+                if (testBoard[a] === player && testBoard[c] === player && testBoard[b] === "") return b;
+                if (testBoard[b] === player && testBoard[c] === player && testBoard[a] === "") return a;
+            }
+            return null;
+        }
+        function getAIMove() {
+            const moves = getAvailableMoves(board);
+            if (moves.length === 0) return null;
+            
+            if (aiDifficulty === 'hard' || aiDifficulty === 'medium') {
+                let winningMove = findWinningMove(board, PLAYER_O);
+                if (winningMove !== null) return winningMove;
+                let blockingMove = findWinningMove(board, PLAYER_X);
+                if (blockingMove !== null) return blockingMove;
+            }
+
+            if (aiDifficulty === 'hard') {
+                if (moves.includes(4)) return 4;
+                const corners = [0, 2, 6, 8].filter(index => moves.includes(index));
+                if (corners.length > 0) {
+                    return corners[Math.floor(Math.random() * corners.length)];
+                }
+            }
+            return moves[Math.floor(Math.random() * moves.length)];
+        }
+        function handleAITurn() {
+            cells.forEach(cell => cell.style.pointerEvents = 'none');
+            const moveIndex = getAIMove();
+            if (moveIndex !== null) {
+                const cellToPlay = cells[moveIndex];
+                setTimeout(() => {
+                    handleCellPlayed(cellToPlay, moveIndex);
+                    if (!handleResultValidation()) {
+                        handlePlayerChange();
+                    }
+                    cells.forEach(cell => cell.style.pointerEvents = 'auto');
+                }, 500); 
+            }
+        }
+
+        // --- Online Logic (Conceptual) ---
+
+        function handleOnlineConnect() {
+            const roomId = roomIdInput.value.trim();
+            isOnlineMode = true;
+            isPlayerVsAI = false; // Disable AI
+            
+            // --- CONCEPTUAL SERVER CONNECTION ---
+            if (roomId.length === 0) {
+                // If no ID is provided, simulate room creation
+                const newRoomId = Math.random().toString(36).substring(2, 7).toUpperCase();
+                localPlayerRole = PLAYER_X; // Host is usually X
+                statusMessage.innerHTML = `Created Room ${newRoomId}. You are X. Waiting for opponent...`;
+                // In a real game, this would send an 'createRoom' message to the server
+                // and open a WebSocket connection.
+            } else {
+                // If ID is provided, simulate joining
+                localPlayerRole = PLAYER_O; // Joiner is usually O
+                statusMessage.innerHTML = `Attempting to join Room ${roomId}. You are O.`;
+                // In a real game, this would send a 'joinRoom' message to the server
+            }
+            // --- END CONCEPTUAL CONNECTION ---
+
+            // Start the game interface
+            initializeGame(false, null, true); 
+        }
+
+        // --- Event Handlers ---
+
+        function handleCellClick(e) {
+            const clickedCell = e.target;
+            const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
+            
+            if (board[clickedCellIndex] !== "" || !isGameActive) return;
+            
+            // Check turn validity for Online and AI modes
+            if (isPlayerVsAI && currentPlayer === PLAYER_O) return;
+            if (isOnlineMode && currentPlayer !== localPlayerRole) {
+                statusMessage.innerHTML = "It is not your turn yet!";
+                return;
+            }
+            
+            handleCellPlayed(clickedCell, clickedCellIndex);
+            
+            if (!handleResultValidation()) {
+                handlePlayerChange();
+
+                if (isPlayerVsAI && currentPlayer === PLAYER_O && isGameActive) {
+                    handleAITurn();
+                }
+                
+                // If online, send the move to the server
+                if (isOnlineMode) {
+                    // CONCEPTUAL: Send move to server here (e.g., socket.send({ move: clickedCellIndex }))
+                    console.log(`[Online Mode] Sending move ${clickedCellIndex} to server.`);
+                    cells.forEach(cell => cell.style.pointerEvents = 'none'); // Lock until server responds
+                }
+            }
+        }
+        
+        function initializeGame(isAI, difficulty = 'easy', isOnline = false) {
+            isPlayerVsAI = isAI;
+            isOnlineMode = isOnline;
+            aiDifficulty = difficulty;
+            isGameActive = true;
+            currentPlayer = PLAYER_X;
+            board = ["", "", "", "", "", "", "", "", ""];
+            
+            gameBoard.classList.remove('win-flash', 'draw-shake');
+            cells.forEach(cell => cell.classList.remove('winning-cell'));
+
+            statusMessage.innerHTML = isOnline ? "Waiting for players..." : `Player ${currentPlayer}'s turn!`;
+            if (isAI) {
+                statusMessage.innerHTML += ` (AI Level: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)})`;
+            }
+            
+            cells.forEach(cell => {
+                cell.innerHTML = "";
+                cell.classList.remove(PLAYER_X, PLAYER_O);
+                cell.style.pointerEvents = 'auto'; 
+            });
+
+            if (isOnline) {
+                // In a real game, you would wait for the server to confirm the connection 
+                // and start the game, setting the initial status message accordingly.
+                // For this conceptual version, we rely on handleOnlineConnect to set the status.
+            }
+
+            menuScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+        }
+
+        // --- Menu Button Listeners ---
+
+        play1v1Btn.addEventListener('click', () => initializeGame(false, null, false));
+        
+        play1vAIBtn.addEventListener('click', () => {
+            const selectedDifficulty = aiLevelSelect.value;
+            initializeGame(true, selectedDifficulty, false);
+        });
+
+        joinRoomBtn.addEventListener('click', handleOnlineConnect);
+
+        resetButton.addEventListener('click', () => {
+            if (isOnlineMode) {
+                // CONCEPTUAL: Send a 'reset' request to the server
+                console.log("[Online Mode] Reset request sent to server.");
+                // Then re-initialize
+                handleOnlineConnect();
+            } else {
+                initializeGame(isPlayerVsAI, aiDifficulty, false);
+            }
+        });
+        
+        menuButton.addEventListener('click', () => {
+            menuScreen.style.display = 'block';
+            gameScreen.style.display = 'none';
+            isOnlineMode = false;
+        });
+
+        cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+
+    </script>
+</body>
+</html>
